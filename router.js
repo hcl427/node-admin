@@ -2,6 +2,7 @@ var express = require('express')
 var fs = require('fs')
 var router = express.Router()
 var Students = require('./students')
+
 // student 主页面
 router.get('/students', function (request, response) {
     // 第二个参数用来把二进制转换成utf8编码
@@ -36,6 +37,26 @@ router.post('/students/news', function (request, response) {
     // 1.获取数据
     // 2.处理数据
     // 3.发送响应
-    console.log(request.body);
+    Students.save(request.body,function(err){
+        if(err)
+            return err
+        response.redirect('/students')
+    })
+})
+
+// 处理修改操作  获取当前条的信息，并跳转到对应页面
+router.get('/students/edit',function(request,respones){
+    // 拿到当前id
+    // 1。根据id查询数据
+    // 2。渲染edit模版
+    Students.findById(request.query.id,function(err,data){
+        if(err) 
+            return console.log('修改失败');
+        console.log('data',data);
+        respones.render('edit.html',{
+            student:data
+        })
+    })
+
 })
 module.exports = router
