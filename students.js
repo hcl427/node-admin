@@ -15,17 +15,18 @@ exports.upDataById = function (student, callback) {
     // 先取出文件中的student
     var students = JSON.parse(data).student
     // 然后循环students和student匹配id
+    students.id = parseInt(students.id)
     var res = students.find(function (item) {
       // 如果传递过来的id和循环的id匹配，那么就返回这一项
       return item.id == student.id
     })
     // 最后把匹配到的那一项改成修改的内容
-    for(var key in res){
+    for (var key in res) {
       res[key] = student[key]
     }
     // 再次把
     var filedata = JSON.stringify({
-      student:students
+      student: students
     })
     fs.writeFile(dbPath, filedata, function (err, data) {
       if (err)
@@ -50,8 +51,25 @@ exports.upDataById = function (student, callback) {
 /**
  * 删除学生
  */
-exports.delete = function () {
-
+exports.delete = function (id, callback) {
+  fs.readFile(dbPath, 'utf8', function (err, data) {
+    if (err) {
+      return callback(err)
+    }
+    var students = JSON.parse(data).student
+    var delId = students.findIndex(item=>{
+      return item.id == id
+    })
+    students.splice(delId,1)
+    var fileData = JSON.stringify({
+      student: students
+    })
+    fs.writeFile(dbPath, fileData, function (err, data) {
+      if (err)
+        return callback(err)
+      callback(null)
+    })
+  })
 }
 // 改
 /*
@@ -94,14 +112,14 @@ exports.find = function (callback) {
  * 
  * 查询当前一个学生的信息
  */
-exports.findById = function(id,callback){
+exports.findById = function (id, callback) {
   fs.readFile(dbPath, 'utf8', function (err, data) {
     if (err) {
       return callback(err)
     }
     var student = JSON.parse(data).student
-    var res = student.find(item=>{
-      return item.id == id
+    var res = student.find(item => {
+      return item.id == parseInt(id)
     })
     callback(null, res)
   })
